@@ -1,0 +1,22 @@
+# Reusable: checkout, install, run one bot. Callers: gold.yml, ...
+name: run-bot
+on:
+  workflow_call:
+    inputs:
+      bot: {type: string, required: true}
+permissions:
+  contents: write  # bots push chart images back to the repo
+
+concurrency: helper-bot-push  # serialize bots so pushes don't race
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run python -m mezon_helper_bot ${{ inputs.bot }}
+        env:
+          # repo secret <BOT>_WEBHOOK_URL, e.g. GOLD_WEBHOOK_URL
+          WEBHOOK_URL: ${{ secrets[format('{0}_WEBHOOK_URL', inputs.bot)] }}

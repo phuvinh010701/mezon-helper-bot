@@ -1,0 +1,13 @@
+name: gold
+on:
+  schedule: [{cron: "0 1 * * *"}]  # 08:00 Vietnam time
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  gold:
+    uses: ./.github/workflows/run-bot.yml
+    with: {bot: gold}
+    secrets: inherit
