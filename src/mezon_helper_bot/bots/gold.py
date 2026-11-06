@@ -131,12 +131,22 @@ def draw_card(fig: SubFigure, title: str, rows: list[Row]) -> None:
     step = max(1, n // 6)
     ticks = range(n - 1, -1, -step)  # always ends on today
     ax.set_xticks(list(ticks), [_label(rows[i][0]) for i in ticks])
-    ax.legend(loc="upper left", frameon=False, labelcolor=MUTED, fontsize=9, ncol=2)
+    # Legend sits above the plot area so it can never collide with the peak label.
+    ax.legend(
+        loc="lower right",
+        bbox_to_anchor=(1, 1.01),
+        frameon=False,
+        labelcolor=MUTED,
+        fontsize=9,
+        ncol=2,
+    )
 
 
 def render(cards: list[Card], path: Path) -> None:
     fig = plt.figure(figsize=(10, 5.8 * len(cards)), facecolor=BG)
-    for sub, (title, rows) in zip(fig.subfigures(len(cards), 1, hspace=0), cards):
+    for sub, (title, rows) in zip(
+        fig.subfigures(len(cards), 1, hspace=0, squeeze=False)[:, 0], cards
+    ):
         draw_card(sub, title, rows)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=120, facecolor=BG)
